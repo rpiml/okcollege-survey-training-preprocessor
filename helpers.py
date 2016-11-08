@@ -73,11 +73,11 @@ def construct_type_table(form_loc='assets/form.json'):
                 for question in page['questions']:
                     # print(type(question))
                     if question['type'] == 'slider':
-                        type_dict[question['id']] = 'numerical'
-                        writer.writerow([question['id'], 'numerical'])
+                        type_dict[question['id']] = ('numerical', None)
+                        writer.writerow([question['id'], 'numerical', ''])
                     elif question['type'] == 'choice' or question['type'] == 'multi-choice-dropdown':
-                        type_dict[question['id']] = ('categorical', len(question['answers']))
-                        writer.writerow([question['id'] + ':' + q, 'categorical', len(question['answers'])])
+                        type_dict[question['id']] = ('categorical', str(len(question['answers'])))
+                        writer.writerow([question['id'] + ':' + q, 'categorical', str(len(question['answers'])]))
                     elif question['type'] == 'multi-choice':
                         for q in question['answers']:
                             type_dict[question['id'] + ':' + q] = ('categorical', 2)
