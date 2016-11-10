@@ -1,3 +1,4 @@
 redis
 hiredis
 pg8000
+pika
