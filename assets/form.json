@@ -1,0 +1,108 @@
+{
+    "firstPage": "start",
+    "pages": [{
+        "id": "start",
+        "questions": [{
+            "id": "years-in-college",
+            "question": "How many years of college have you completed?",
+            "type": "slider",
+            "range": [0, 5],
+            "step": 0.5
+        }, {
+            "id": "plan-of-study",
+            "question": "What was your major?",
+            "type": "multi-choice",
+            "hasOther": true,
+            "answers": ["Business", "Psychology", "Nursing", "Computer Science", "Science / Engineering", "Communications"]
+        }, {
+            "id": "GPA-4",
+            "question": "What was your GPA on a 4.0 scale (unweighted)?",
+            "type": "slider",
+            "range": [0, 4],
+            "step": 0.05
+        }, {
+            "id": "favorite-class",
+            "question": "What was your favorite class in high school?",
+            "type": "choice",
+            "hasOther": true,
+            "answers": ["English", "Math", "History", "Science", "Art"]
+        }],
+        "next": [{
+          "condition": "true",
+          "page": "scores"
+          }]
+    }, {
+        "id": "scores",
+        "questions": [{
+            "id": "SAT-or-ACT",
+            "question": "Did you take the SAT or the ACT?",
+            "type": "multi-choice",
+            "answers": ["SAT", "ACT", "Both"]
+        }, {
+            "id": "SAT-score",
+            "question": "What was your SAT score?",
+            "type": "slider",
+            "range": [600, 2400]
+        }, {
+            "id": "ACT-score",
+            "question": "What was your ACT score?",
+            "type": "slider",
+            "range": [600, 2400]
+        }, {
+            "id": "SAT2",
+            "question": "Which SAT 2 subject tests did you take?",
+            "type": "multi-choice",
+            "answers": ["English", "Math 1", "Math 2", "Physics", "History", "Biology", "Chemistry", "Ecology", "Languages"]
+        }, {
+            "id": "SAT2-scores",
+            "question": "What were your scores on the subject tests?",
+            "type": "slider",
+            "range": [0, 1000000000]
+        }],
+        "next": [{
+          "condition": "true",
+          "page": "activities"
+          }]
+    }, {
+        "id": "activities",
+        "questions": [{
+            "id": "sports",
+            "question": "What sports do you play?",
+            "type": "multi-choice",
+            "hasOther": true,
+            "answers": ["Football", "Track & Field", "Basketball", "Baseball", "Soccer", "Wrestling", "Cross Country"]
+        }, {
+            "id": "clubs",
+            "question": "Are you in any clubs?",
+            "type": "choice",
+            "answers": ["Yes", "No", "Not sure..."]
+        }],
+        "next": [{
+          "condition": "true",
+          "page": "awards-and-jobs"
+          }]
+    }, {
+        "id": "awards-and-jobs",
+        "questions": [{
+            "id": "awards",
+            "question": "Do you have any prestigous awards from high school?",
+            "type": "multi-choice-dropdown",
+            "hasOther": true,
+            "answers": ["Yes", "No"]
+        }, {
+            "id": "jobs",
+            "question": "How many years did you work while in high school?",
+            "type": "slider",
+            "range": [0, 4]
+        }, {
+            "id": "internships",
+            "question": "How many internships did you have while in high school?",
+            "type": "slider",
+            "range": [0, 4]
+        }],
+        "next": [{
+          "condition": "true",
+          "page": "done"
+          }]
+    }]
+}

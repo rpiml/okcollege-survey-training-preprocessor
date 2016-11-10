@@ -17,25 +17,13 @@ def process_survey_result(result, type_dict):
                     seen.add((question['id']))
 
                     if 'answer' not in question:
-                        # if question['id'] not in type_dict:
-                        #     continue
-                        # questions.add((question['id']))
                         response_vector.append((question['id'], None))
-
                         continue
 
                     if question['type'] == 'slider':
-                        # assert(question['id'] in type_dict)
-                        # if question['id'] not in type_dict:
-                        #     continue
-                        # questions.add(question['id'])
                         response_vector.append((question['id'], question['answer']))
 
                     elif question['type'] == 'choice' or question['type'] == 'multi-choice-dropdown':
-                        # assert(question['id'] in type_dict)
-                        # if question['id'] not in type_dict:
-                        #     questions.add(question['id'])
-                        #     continue
                         i = question['answers'].index(question['answer'])
                         response_vector.append((question['id'], i))
 
@@ -43,14 +31,12 @@ def process_survey_result(result, type_dict):
                         answer = set(question['answer'])
                         for q in question['answers']:
                             name = question['id'] + ':' + q
-                            # assert(name in type_dict)
                             if q in answer:
                                 response_vector.append((name, 1.))
                             else:
                                 response_vector.append((name, 0.))
                     else:
                         response_vector.append((question['id'], None))
-                        # raise Exception('Malformed question type value in form')
             unseen = set(type_dict) - seen
             for q in unseen:
                 response_vector.append((q, None))
@@ -58,8 +44,6 @@ def process_survey_result(result, type_dict):
 
         except LookupError:
             print('Malformed JSON object in %s', str(row[0]))
-            # continue
-            # raise Exception('Malformed JSON object in survey_response')
 
     return response_table
 
@@ -81,7 +65,7 @@ def construct_type_table(form_loc='assets/form.json'):
                         for q in question['answers']:
                             type_dict[question['id'] + ':' + q] = ('categorical', 2)
                     else:
-                        raise Exception('Malformed question type value in form')
+                        raise Exception('Unknown question type value in form')
 
             for k in sorted(type_dict.keys()):
                 feature_type, num = type_dict[k]

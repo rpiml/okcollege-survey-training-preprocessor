@@ -4,15 +4,24 @@ import redis
 import helpers
 import pika
 
+def query_db(query, database='okcollege_dev', user='postgres', password='', response=True):
+        psql_conn = pg8000.connect(database=database, user=user, password=password)
+        cursor = psql_conn.cursor()
+        cursor.execute(query)
+
+        if response:
+            result = cursor.fetchall()
+            cursor.close()
+            psql_conn.close()
+            return result
+        else:
+            cursor.close()
+            psql_conn.close()
+
 def callback(ch, method, properties, body):
     print('Message received: %s' % body.decode('utf-8'))
     try:
-        psql_conn = pg8000.connect(database='okcollege_dev', user='postgres', password='')
-        cursor = psql_conn.cursor()
-        cursor.execute('SELECT uuid, content FROM survey_response')
-        result = cursor.fetchall()
-        cursor.close()
-        psql_conn.close()
+        result = query_db('SELECT uuid, content FROM survey_response')
 
         type_dict, question_table = helpers.construct_type_table('../assets/form.json')
         result_table = helpers.process_survey_result(result, type_dict)
@@ -20,13 +29,13 @@ def callback(ch, method, properties, body):
         r = redis.StrictRedis(host='localhost')
         r.set('learning:survey_training.csv', result_table.getvalue())
         r.set('learning:survey_features.csv', question_table.getvalue())
+
     except Exception as e:
         print(type(e))
         print(e.args)
         print(e)
         return
     print('Message processed: %s' % body.decode('utf-8'))
-
 
 if __name__ == '__main__':
     credentials = pika.PlainCredentials('rabbitmq', 'rabbitmq')
