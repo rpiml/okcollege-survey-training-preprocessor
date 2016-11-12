@@ -3,9 +3,10 @@ import json
 import redis
 import helpers
 import pika
+import time
 
-def query_db(query, database='okcollege_dev', user='postgres', password='', response=True):
-        psql_conn = pg8000.connect(database=database, user=user, password=password)
+def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True):
+        psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
         cursor = psql_conn.cursor()
         cursor.execute(query)
 
@@ -21,7 +22,7 @@ def query_db(query, database='okcollege_dev', user='postgres', password='', resp
 def callback(ch, method, properties, body):
     print('Message received: %s' % body.decode('utf-8'))
     try:
-        result = query_db('SELECT uuid, content FROM survey_response')
+        result = query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
 
         type_dict, question_table = helpers.construct_type_table('../assets/form.json')
         result_table = helpers.process_survey_result(result, type_dict)
@@ -31,18 +32,29 @@ def callback(ch, method, properties, body):
         r.set('learning:survey_features.csv', question_table.getvalue())
 
     except Exception as e:
-        print(type(e))
-        print(e.args)
         print(e)
         return
     print('Message processed: %s' % body.decode('utf-8'))
 
 if __name__ == '__main__':
+    print("Starting...")
     credentials = pika.PlainCredentials('rabbitmq', 'rabbitmq')
     parameters = pika.ConnectionParameters(host='localhost', credentials=credentials)
-    mq_conn = pika.BlockingConnection(parameters)
+
+    print("Attempting connection...")
+
+    while True:
+        try:
+            mq_conn = pika.BlockingConnection(parameters)
+            break
+        except Exception as e:
+            print("Could not connect to RabbitMQ. Retrying...")
+            time.sleep(3)
+
     channel = mq_conn.channel()
     channel.queue_declare(queue='survey-training-preprocessor')
+
+    print("RabbitMQ onnection established.")
 
     channel.basic_publish(exchange='',
                             routing_key='survey-training-preprocessor',
@@ -51,4 +63,5 @@ if __name__ == '__main__':
     channel.basic_consume(callback,
                             queue='survey-training-preprocessor',
                             no_ack=True)
+    print("Consuming...")
     channel.start_consuming()
