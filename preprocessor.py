@@ -1,9 +1,13 @@
+print('Script starting...')
+
 import pg8000
 import json
 import redis
 import helpers
-import pika
 import time
+import pika # something is going wrong with this import on docker-compose
+print('Imports finished')
+
 
 def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True):
         psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
@@ -24,7 +28,7 @@ def callback(ch, method, properties, body):
     try:
         result = query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
 
-        type_dict, question_table = helpers.construct_type_table('../assets/form.json')
+        type_dict, question_table = helpers.construct_type_table('assets/form.json')
         result_table = helpers.process_survey_result(result, type_dict)
 
         r = redis.StrictRedis(host='localhost')
@@ -36,25 +40,25 @@ def callback(ch, method, properties, body):
         return
     print('Message processed: %s' % body.decode('utf-8'))
 
+
 if __name__ == '__main__':
     print("Starting...")
     credentials = pika.PlainCredentials('rabbitmq', 'rabbitmq')
     parameters = pika.ConnectionParameters(host='localhost', credentials=credentials)
 
     print("Attempting connection...")
-
     while True:
         try:
             mq_conn = pika.BlockingConnection(parameters)
             break
         except Exception as e:
             print("Could not connect to RabbitMQ. Retrying...")
-            time.sleep(3)
+            time.sleep(1)
 
     channel = mq_conn.channel()
     channel.queue_declare(queue='survey-training-preprocessor')
 
-    print("RabbitMQ onnection established.")
+    print("RabbitMQ connection established.")
 
     channel.basic_publish(exchange='',
                             routing_key='survey-training-preprocessor',

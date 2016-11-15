@@ -37,7 +37,7 @@ def process_survey_result(result, type_dict):
                                 response_vector.append((name, 0.))
                     else:
                         response_vector.append((question['id'], None))
-            unseen = set(type_dict) - seen
+            unseen = set(type_dict.keys()) - seen
             for q in unseen:
                 response_vector.append((q, None))
             writer.writerow([str(row[0])] + [v[1] for v in sorted(response_vector, key=lambda x: x[0])])

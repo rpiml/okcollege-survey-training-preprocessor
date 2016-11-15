@@ -11,7 +11,7 @@ if __name__ == '__main__':
             open('assets/example_uuid.txt') as example_uuid, \
             open('assets/example_response.json') as example_response:
 
-        query_db('CREATE TABLE survey_response (uuid text, content text)', database='postgres', response=False)
+        query_db('CREATE TABLE (survey_response) (uuid text, content text)', database='postgres', response=False)
 
         ins_query = "INSERT INTO survey_response (uuid, content) VALUES ('%s', '%s')" % \
                         ("a", "b")
