@@ -3,7 +3,26 @@ import json
 import redis
 import helpers
 import time
-import pika
+import amqpy
+
+class Consumer(amqpy.AbstractConsumer):
+    def run(self, msg: amqpy.Message):
+        print('Message received: %s' % msg.body)
+        try:
+            result = query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
+
+            type_dict, question_table = helpers.construct_type_table('assets/form.json')
+            result_table = helpers.process_survey_result(result, type_dict)
+
+            r = redis.StrictRedis(host='localhost')
+            r.set('learning:survey_training.csv', result_table.getvalue())
+            r.set('learning:survey_features.csv', question_table.getvalue())
+
+        except Exception as e:
+            print(e)
+            return
+        print('Message processed: %s' % msg.body)
+        msg.ack()
 
 def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True):
         psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
@@ -19,49 +38,30 @@ def query_db(query, database='postgres', host='localhost', user='postgres', pass
             cursor.close()
             psql_conn.close()
 
-def callback(ch, method, properties, body):
-    print('Message received: %s' % body.decode('utf-8'))
-    try:
-        result = query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
-
-        type_dict, question_table = helpers.construct_type_table('assets/form.json')
-        result_table = helpers.process_survey_result(result, type_dict)
-
-        r = redis.StrictRedis(host='localhost')
-        r.set('learning:survey_training.csv', result_table.getvalue())
-        r.set('learning:survey_features.csv', question_table.getvalue())
-
-    except Exception as e:
-        print(e)
-        return
-    print('Message processed: %s' % body.decode('utf-8'))
-
-
 if __name__ == '__main__':
     print("Starting...")
-    credentials = pika.PlainCredentials('rabbitmq', 'rabbitmq')
-    parameters = pika.ConnectionParameters(host='localhost', credentials=credentials)
 
     print("Attempting connection...")
     while True:
         try:
-            mq_conn = pika.BlockingConnection(parameters)
+            conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host='localhost')
             break
         except Exception as e:
             print("Could not connect to RabbitMQ. Retrying...")
             time.sleep(1)
 
-    channel = mq_conn.channel()
-    channel.queue_declare(queue='survey-training-preprocessor')
+    channel = conn.channel()
+    channel.exchange_declare('preprocessor', 'direct')
+    channel.queue_declare('survey-training-preprocessor')
+    channel.queue_bind('survey-training-preprocessor', exchange='preprocessor', routing_key='survey-training-preprocessor')
 
     print("RabbitMQ connection established.")
 
-    channel.basic_publish(exchange='',
-                            routing_key='survey-training-preprocessor',
-                            body='set-to-redis')
+    channel.basic_publish(amqpy.Message('set-to-redis'), exchange='preprocessor', routing_key='survey-training-preprocessor')
 
-    channel.basic_consume(callback,
-                            queue='survey-training-preprocessor',
-                            no_ack=True)
+    consumer = Consumer(channel, 'survey-training-preprocessor')
+    consumer.declare()
+
     print("Consuming...")
-    channel.start_consuming()
+    while True:
+        conn.drain_events(timeout=None)
