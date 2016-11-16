@@ -4,7 +4,7 @@ import io
 
 def process_survey_result(result, type_dict):
     response_table = io.StringIO()
-    writer = csv.writer(response_table, delimiter=',')
+    writer = csv.writer(response_table, delimiter='\t')
     for row in result:
         try:
             response_vector = []
@@ -53,7 +53,7 @@ def construct_type_table(form_loc='assets/form.json'):
         form = json.load(f)
         type_dict = {}
         question_table = io.StringIO()
-        writer = csv.writer(question_table, delimiter=',')
+        writer = csv.writer(question_table, delimiter='\t')
         try:
             for page in form['pages']:
                 for question in page['questions']:
