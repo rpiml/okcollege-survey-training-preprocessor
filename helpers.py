@@ -1,6 +1,26 @@
 import csv
 import json
+import pg8000
 import io
+
+def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True, autocommit=False):
+        psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
+        psql_conn.autocommit = autocommit
+
+
+        print('Querying DB')
+
+        cursor = psql_conn.cursor()
+        cursor.execute(query)
+
+        if response:
+            result = cursor.fetchall()
+            cursor.close()
+            psql_conn.close()
+            return result
+        else:
+            cursor.close()
+            psql_conn.close()
 
 def process_survey_result(result, type_dict):
     response_table = io.StringIO()

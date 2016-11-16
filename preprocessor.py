@@ -9,7 +9,7 @@ class Consumer(amqpy.AbstractConsumer):
     def run(self, msg: amqpy.Message):
         print('Message received: %s' % msg.body)
         try:
-            result = query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
+            result = helpers.query_db('SELECT uuid, content FROM survey_response', database='okcollege_dev')
 
             type_dict, question_table = helpers.construct_type_table('assets/form.json')
             result_table = helpers.process_survey_result(result, type_dict)
@@ -23,20 +23,6 @@ class Consumer(amqpy.AbstractConsumer):
             return
         print('Message processed: %s' % msg.body)
         msg.ack()
-
-def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True):
-        psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
-        cursor = psql_conn.cursor()
-        cursor.execute(query)
-
-        if response:
-            result = cursor.fetchall()
-            cursor.close()
-            psql_conn.close()
-            return result
-        else:
-            cursor.close()
-            psql_conn.close()
 
 if __name__ == '__main__':
     print("Starting...")
