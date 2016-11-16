@@ -1,13 +1,9 @@
-print('Script starting...')
-
 import pg8000
 import json
 import redis
 import helpers
 import time
-import pika # something is going wrong with this import on docker-compose
-print('Imports finished')
-
+import pika
 
 def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True):
         psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
