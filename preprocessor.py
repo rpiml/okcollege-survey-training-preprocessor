@@ -6,6 +6,9 @@ import time
 import amqpy
 
 class Consumer(amqpy.AbstractConsumer):
+    '''
+    Class that is instantiated to consume amqp messages
+    '''
     def run(self, msg: amqpy.Message):
         print('Message received: %s' % msg.body)
         try:

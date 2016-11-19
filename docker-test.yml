@@ -12,7 +12,7 @@ services:
     image: python:3.5
     network_mode: host
     volumes:
-      - ../assets:/usr/src/app/assets
+      # - ../assets:/usr/src/app/assets
       - ./:/usr/src/app
     command: "/bin/bash -c \"cd /usr/src/app && pip install -r requirements.txt && python -u test.py\""
     depends_on:
