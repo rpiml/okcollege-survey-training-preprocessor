@@ -1,0 +1,35 @@
+ACT-score	numerical
+GPA-4	numerical
+SAT-or-ACT:ACT	categorical	2
+SAT-or-ACT:Both	categorical	2
+SAT-or-ACT:SAT	categorical	2
+SAT-score	numerical
+SAT2-scores	numerical
+SAT2:Biology	categorical	2
+SAT2:Chemistry	categorical	2
+SAT2:Ecology	categorical	2
+SAT2:English	categorical	2
+SAT2:History	categorical	2
+SAT2:Languages	categorical	2
+SAT2:Math 1	categorical	2
+SAT2:Math 2	categorical	2
+SAT2:Physics	categorical	2
+awards	categorical	2
+clubs	categorical	3
+favorite-class	categorical	5
+internships	numerical
+jobs	numerical
+plan-of-study:Business	categorical	2
+plan-of-study:Communications	categorical	2
+plan-of-study:Computer Science	categorical	2
+plan-of-study:Nursing	categorical	2
+plan-of-study:Psychology	categorical	2
+plan-of-study:Science / Engineering	categorical	2
+sports:Baseball	categorical	2
+sports:Basketball	categorical	2
+sports:Cross Country	categorical	2
+sports:Football	categorical	2
+sports:Soccer	categorical	2
+sports:Track & Field	categorical	2
+sports:Wrestling	categorical	2
+years-in-college	numerical

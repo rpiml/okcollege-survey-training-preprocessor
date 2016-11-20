@@ -1,0 +1,17 @@
+sudo: required
+
+language: python
+python:
+  - "3.5"
+
+addons:
+  postgresql: "9.4"
+  redis: "3.2.5"
+
+before_script:
+  # - psql -U postgres
+  # - wget https://raw.githubusercontent.com/rpiml/okcollege-dev/master/assets/form.json -P ./assets
+  - pip install -r requirements.txt
+
+script:
+- python test.py
