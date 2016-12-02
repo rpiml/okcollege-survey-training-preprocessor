@@ -4,6 +4,7 @@ import redis
 import helpers
 import time
 import amqpy
+import os
 
 class Consumer(amqpy.AbstractConsumer):
     '''
@@ -17,7 +18,7 @@ class Consumer(amqpy.AbstractConsumer):
             type_dict, question_table = helpers.construct_type_table('assets/form.json')
             result_table = helpers.process_survey_result(result, type_dict)
 
-            r = redis.StrictRedis(host='localhost')
+            r = redis.StrictRedis(host=(os.getenv('REDIS_HOST') or 'localhost'))
             r.set('learning:survey_training.csv', result_table.getvalue())
             r.set('learning:survey_features.csv', question_table.getvalue())
 
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     print("Attempting connection...")
     while True:
         try:
-            conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host='localhost')
+            conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host=(os.getenv('RABBITMQ_HOST') or 'localhost'))
             break
         except Exception as e:
             print("Could not connect to RabbitMQ. Retrying...")
