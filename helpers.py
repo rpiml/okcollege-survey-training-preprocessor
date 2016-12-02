@@ -2,15 +2,19 @@ import csv
 import json
 import pg8000
 import io
+import os
 
 '''
 Collection of helper functions to use in the survey training preprocessor
 '''
 
-def query_db(query, database='postgres', host='localhost', user='postgres', password='', response=True, autocommit=False):
+def query_db(query, database='postgres', host=None, user='postgres', password='', response=True, autocommit=False):
     '''
     Function that connects to the specified PostgreSQL database and executes the given query
     '''
+    if host is None:
+        host = os.getenv("PG_HOST") or "localhost"
+
     psql_conn = pg8000.connect(host=host, database=database, user=user, password=password)
     psql_conn.autocommit = autocommit
 
