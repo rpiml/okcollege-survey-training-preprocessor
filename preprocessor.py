@@ -31,15 +31,6 @@ class Consumer(amqpy.AbstractConsumer):
 if __name__ == '__main__':
     print("Starting...")
 
-    # print("Attempting connection...")
-    # while True:
-    #     try:
-    #         conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host=(os.getenv('RABBITMQ_HOST') or 'localhost'))
-    #         break
-    #     except Exception as e:
-    #         print("Could not connect to RabbitMQ. Retrying...")
-    #         time.sleep(1)
-
     conn = helpers.rabbitmq_connect()
 
     channel = conn.channel()

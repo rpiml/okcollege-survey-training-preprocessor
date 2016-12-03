@@ -39,12 +39,12 @@ def wait_for_redis(host=None):
         host = (os.getenv('REDIS_HOST') or 'localhost')
 
     print('Confirming redis service is running...')
+    r = redis.StrictRedis(host=(os.getenv('REDIS_HOST') or 'localhost'))
     while True:
         try:
-            r = redis.StrictRedis(host=(os.getenv('REDIS_HOST') or 'localhost'))
             r.ping()
+            break
         except (redis.exceptions.ConnectionError, redis.exceptions.BusyLoadingError):
-            # raise
             print('Could not connect to redis. Retrying...')
             time.sleep(1)
 
