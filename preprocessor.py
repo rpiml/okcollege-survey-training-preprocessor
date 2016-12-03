@@ -31,21 +31,23 @@ class Consumer(amqpy.AbstractConsumer):
 if __name__ == '__main__':
     print("Starting...")
 
-    print("Attempting connection...")
-    while True:
-        try:
-            conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host=(os.getenv('RABBITMQ_HOST') or 'localhost'))
-            break
-        except Exception as e:
-            print("Could not connect to RabbitMQ. Retrying...")
-            time.sleep(1)
+    # print("Attempting connection...")
+    # while True:
+    #     try:
+    #         conn = amqpy.Connection(userid='rabbitmq', password='rabbitmq', host=(os.getenv('RABBITMQ_HOST') or 'localhost'))
+    #         break
+    #     except Exception as e:
+    #         print("Could not connect to RabbitMQ. Retrying...")
+    #         time.sleep(1)
+
+    conn = helpers.rabbitmq_connect()
 
     channel = conn.channel()
     channel.exchange_declare('preprocessor', 'direct')
     channel.queue_declare('survey-training-preprocessor')
     channel.queue_bind('survey-training-preprocessor', exchange='preprocessor', routing_key='survey-training-preprocessor')
 
-    print("RabbitMQ connection established.")
+    helpers.wait_for_redis()
 
     channel.basic_publish(amqpy.Message('set-to-redis'), exchange='preprocessor', routing_key='survey-training-preprocessor')
 
