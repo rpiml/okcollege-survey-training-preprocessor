@@ -160,6 +160,9 @@ def construct_type_table(form_loc='assets/form.json'):
                     elif question['type'] == 'multi-choice':
                         for q in question['answers']:
                             type_dict[question['id'] + ':' + q] = ('categorical', 2)
+                    elif question['type'] == 'text':
+                        # Placeholder entry
+                        type_dict[question['id']] = ('numerical', None)
                     else:
                         raise Exception('Unknown question type value in form')
 
