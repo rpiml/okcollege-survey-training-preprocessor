@@ -118,6 +118,8 @@ def process_survey_result(result, type_dict):
                                 response_vector.append((name, 1.))
                             else:
                                 response_vector.append((name, 0.))
+                    elif question['type'] == 'text':
+                        response_vector.append((question['id'], question['answer']))
                     else:
                         response_vector.append((question['id'], None))
             unseen_questions = set(type_dict.keys()) - seen_questions
@@ -161,10 +163,9 @@ def construct_type_table(form_loc='assets/form.json'):
                         for q in question['answers']:
                             type_dict[question['id'] + ':' + q] = ('categorical', 2)
                     elif question['type'] == 'text':
-                        # Placeholder entry
-                        type_dict[question['id']] = ('numerical', None)
+                        type_dict[question['id']] =  ('text', 1)
                     else:
-                        raise Exception('Unknown question type value in form')
+                        raise Exception('Unknown question type {} in form'.format(question['type']))
 
             for k in sorted(type_dict.keys()):
                 feature_type, num = type_dict[k]
