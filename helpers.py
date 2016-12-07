@@ -1,12 +1,55 @@
 import csv
 import json
+import redis
+import amqpy
 import pg8000
 import io
 import os
+import time
 
 '''
 Collection of helper functions to use in the survey training preprocessor
 '''
+
+def rabbitmq_connect(userid='rabbitmq', password='rabbitmq', host=None):
+    '''
+    Attempt a RabbitMQ connection, block until it succeeds
+    '''
+
+    if host is None:
+        host = (os.getenv('RABBITMQ_HOST') or 'localhost')
+
+    print('Attempting RabbitMQ connection...')
+    while True:
+        try:
+            conn = amqpy.Connection(userid=userid, password=userid, host=host)
+            break
+        except Exception as e:
+            print('Could not connect to RabbitMQ. Retrying...')
+            time.sleep(1)
+    print('RabbitMQ connection established.')
+    return conn
+
+def wait_for_redis(host=None):
+    '''
+    Block until the redis service is running
+    '''
+
+    if host is None:
+        host = (os.getenv('REDIS_HOST') or 'localhost')
+
+    print('Confirming redis service is running...')
+    r = redis.StrictRedis(host=(os.getenv('REDIS_HOST') or 'localhost'))
+    while True:
+        try:
+            r.ping()
+            break
+        except (redis.exceptions.ConnectionError, redis.exceptions.BusyLoadingError):
+            print('Could not connect to redis. Retrying...')
+            time.sleep(1)
+
+    print('Redis service confirmed running.')
+
 
 def query_db(query, database='postgres', host=None, user='postgres', password='', response=True, autocommit=False):
     '''
@@ -75,6 +118,8 @@ def process_survey_result(result, type_dict):
                                 response_vector.append((name, 1.))
                             else:
                                 response_vector.append((name, 0.))
+                    elif question['type'] == 'text':
+                        response_vector.append((question['id'], question['answer']))
                     else:
                         response_vector.append((question['id'], None))
             unseen_questions = set(type_dict.keys()) - seen_questions
